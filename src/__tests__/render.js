@@ -97,3 +97,24 @@ test('flushEffects can be called without causing issues', () => {
   flushEffects()
   expect(document.documentElement.innerHTML).toBe(preHtml)
 })
+
+test('useEffect hooks work with fake timers', () => {
+  let count = 0
+  const effectFn = jest.fn(() => {
+    count++
+  })
+  function SideEffectfulComponent() {
+    useEffect(effectFn)
+    return <div />
+  }
+  expect(count).toBe(0)
+
+  jest.useFakeTimers()
+
+  render(<SideEffectfulComponent />)
+
+  jest.runOnlyPendingTimers()
+
+  expect(effectFn).toHaveBeenCalled()
+  expect(count).toBe(1)
+})
